@@ -1,4 +1,3 @@
-
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
@@ -9,19 +8,6 @@ const PORT = process.env.PORT || 5000;
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-/*
-const notes = [
-    {
-        "title":"Test Title",
-        "text":"Test text",
-        "id": "1"
-    },
-    {
-        "title":"Test2",
-        "text":"Test text2",
-        "id": "2"
-    }
-];*/
 
 const dbFile = 'db/db.json';
 
@@ -41,29 +27,21 @@ const readFile = (callback) => {
     })
 };
 
-const writeFile = (data, callback) => {
-
-};
-
+//function to generate random ID for each note
 generateID = () => crypto.randomBytes(8).toString('hex');
 
+// handle page requests
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, '/public/index.html')));
 app.get('/notes', (req, res) => res.sendFile(path.join(__dirname, '/public/notes.html')));
 
+// handle front end request for stored notes to display
 app.get('/api/notes', (req, res) => {
-    /*
-    fs.readFile('db.json', 'utf-8', (err, data) => {
-        if (err) throw err;
-
-        res.send(data);
-    });
-    */
-
     readFile((data) => {
         res.send(data);
     })
 });
 
+// handle post requests to add notes to the db.json
 app.post('/api/notes', (req, res) => {
     const newNote = req.body;
     const id = generateID();
@@ -78,8 +56,10 @@ app.post('/api/notes', (req, res) => {
             res.json(newNote);
         });
     })
+
 })
 
+//handle delete requests to remove note from db.json when the delete icon is clicked on a note
 app.delete('/api/notes/:id', (req, res) => {
     const noteId = req.params.id;
 
@@ -92,11 +72,6 @@ app.delete('/api/notes/:id', (req, res) => {
             }
         }
         notesArr = JSON.stringify(notesArr);
-        /*
-        writeFile(notesArr, () => {
-            res.send();
-        });
-        */
         fs.writeFile(dbFile, notesArr, (err) => {
             if (err) throw err;
             res.send();
@@ -104,4 +79,5 @@ app.delete('/api/notes/:id', (req, res) => {
     });
 })
 
+//handle port listen request
 app.listen(PORT, () => console.log(`App listening on PORT ${PORT}`));
